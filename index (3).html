@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internship Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e141b;
+  --panel:#151e28;
+  --panel-2:#1a2431;
+  --line:#26313e;
+  --ink:#e8edf2;
+  --dim:#8a98a5;
+  --faint:#5a6773;
+  --amber:#ffb454;
+  --green:#57d38c;
+  --red:#ff6b6b;
+  --cyan:#5ac8e8;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter',system-ui,sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  min-height:100vh;
+}
+a{color:var(--cyan)}
+.wrap{max-width:1060px;margin:0 auto;padding:0 16px 80px}
+
+/* ---------- header ---------- */
+header{
+  border-bottom:1px solid var(--line);
+  padding:22px 0 0;
+}
+.masthead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;
+  font-size:clamp(30px,6vw,44px);
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  line-height:1;
+}
+h1 .amp{color:var(--amber)}
+.sub{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--dim);
+  margin-top:6px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.sync{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--dim);
+  display:flex;align-items:center;gap:10px;
+  padding-bottom:2px;
+}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none}
+.sync .dot.live{background:var(--green);box-shadow:0 0 8px var(--green)}
+.sync .dot.snapshot{background:var(--amber)}
+button.refresh{
+  background:var(--panel-2);
+  color:var(--ink);
+  border:1px solid var(--line);
+  border-radius:6px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  padding:6px 12px;
+  cursor:pointer;
+}
+button.refresh:hover{border-color:var(--dim)}
+button.refresh:focus-visible,.tab:focus-visible,.chipbtn:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+
+/* ---------- summary strip ---------- */
+.stats{
+  display:flex;gap:0;margin:18px 0 0;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  background:var(--panel);
+}
+.stat{flex:1;padding:12px 14px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:none}
+.stat b{
+  display:block;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:30px;font-weight:700;line-height:1;
+}
+.stat span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.stat.today b{color:var(--amber)}
+.stat.act b{color:var(--cyan)}
+.stat.todo b{color:var(--red)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:8px;margin:20px 0 18px;flex-wrap:wrap}
+.tab{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:600;font-size:17px;letter-spacing:.05em;text-transform:uppercase;
+  background:none;border:1px solid var(--line);color:var(--dim);
+  padding:8px 18px;border-radius:999px;cursor:pointer;
+}
+.tab[aria-selected="true"]{background:var(--amber);border-color:var(--amber);color:#151005}
+.tab:hover:not([aria-selected="true"]){color:var(--ink);border-color:var(--dim)}
+
+/* ---------- departures board ---------- */
+.board{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);overflow:hidden}
+.board-head{
+  display:grid;grid-template-columns:110px 1fr 120px;
+  padding:10px 16px;border-bottom:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint);
+  text-transform:uppercase;letter-spacing:.1em;
+}
+.brow{
+  display:grid;grid-template-columns:110px 1fr 120px;
+  padding:13px 16px;border-bottom:1px solid var(--line);
+  align-items:center;gap:8px;
+}
+.brow:last-child{border-bottom:none}
+.brow .when{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink)}
+.brow .when small{display:block;color:var(--dim);font-size:11px}
+.brow .what .co{font-weight:600}
+.brow .what .ev{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);margin-top:2px}
+.brow .ev .evtag{color:var(--cyan)}
+.count{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;
+  padding:4px 9px;border-radius:5px;text-align:center;justify-self:end;
+}
+.count.today{background:rgba(255,180,84,.15);color:var(--amber);border:1px solid rgba(255,180,84,.4)}
+.count.soon{background:rgba(90,200,232,.1);color:var(--cyan);border:1px solid rgba(90,200,232,.3)}
+.count.later{background:var(--panel-2);color:var(--dim);border:1px solid var(--line)}
+.count.overdue{background:rgba(255,107,107,.12);color:var(--red);border:1px solid rgba(255,107,107,.4)}
+.empty{
+  padding:36px 16px;text-align:center;color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;font-size:13px;
+}
+.board-divider{
+  padding:10px 16px;
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+  background:var(--panel-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.board-divider ~ .brow{opacity:.6}
+
+/* ---------- todo groups ---------- */
+.group{border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);margin-bottom:16px;overflow:hidden}
+.group h2{
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:18px;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:12px 16px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;
+}
+.group h2 .n{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  background:var(--panel-2);border:1px solid var(--line);
+  padding:1px 8px;border-radius:999px;color:var(--dim);
+}
+.group h2.urgent{color:var(--red)}
+.group h2.warn{color:var(--amber)}
+.group h2.wait{color:var(--cyan)}
+.gitem{padding:11px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.gitem:last-child{border-bottom:none}
+.gitem .co{font-weight:600}
+.gitem .meta{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim)}
+
+/* ---------- all companies ---------- */
+.controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+input.search{
+  flex:1;min-width:200px;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;
+  padding:9px 13px;
+}
+input.search::placeholder{color:var(--faint)}
+input.search:focus{outline:2px solid var(--amber);outline-offset:1px;border-color:transparent}
+.chipbtn{
+  background:var(--panel);border:1px solid var(--line);color:var(--dim);
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  padding:8px 14px;border-radius:8px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;
+}
+.chipbtn[aria-pressed="true"]{border-color:var(--amber);color:var(--amber)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px}
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:var(--panel);padding:16px;
+}
+.card.closed{opacity:.55}
+.card h3{
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:20px;
+  letter-spacing:.03em;line-height:1.15;margin-bottom:2px;
+}
+.card .action{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;
+  margin-bottom:12px;
+}
+.card .action.red{color:var(--red)}
+.card .action.amber{color:var(--amber)}
+.card .action.cyan{color:var(--cyan)}
+.card .action.grey{color:var(--faint)}
+.frow{
+  display:flex;justify-content:space-between;gap:12px;align-items:baseline;
+  padding:6px 0;border-top:1px dashed var(--line);
+}
+.frow .k{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;flex:none}
+.frow .v{font-size:13px;text-align:right}
+.pill{
+  display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;
+  padding:2px 8px;border-radius:5px;border:1px solid var(--line);
+  white-space:nowrap;
+}
+.pill.g{color:var(--green);border-color:rgba(87,211,140,.35);background:rgba(87,211,140,.08)}
+.pill.r{color:var(--red);border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.08)}
+.pill.a{color:var(--amber);border-color:rgba(255,180,84,.35);background:rgba(255,180,84,.08)}
+.pill.c{color:var(--cyan);border-color:rgba(90,200,232,.35);background:rgba(90,200,232,.08)}
+.pill.n{color:var(--dim)}
+.date-note{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim)}
+
+/* ---------- schedule views (ppt / test / resume) ---------- */
+.sched-head{
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:18px;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--dim);
+  margin:22px 0 10px;display:flex;align-items:center;gap:10px;
+}
+.sched-head:first-child{margin-top:0}
+.sched-head .n{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+  background:var(--panel-2);border:1px solid var(--line);
+  padding:1px 8px;border-radius:999px;color:var(--dim);
+}
+.srow{
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  border:1px solid var(--line);border-radius:8px;background:var(--panel);
+  padding:12px 16px;margin-bottom:8px;
+}
+.srow.done{opacity:.7}
+.srow .co{font-weight:600}
+.srow .meta{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);margin-top:2px}
+.srow .check{color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:12px}
+
+footer{
+  margin-top:36px;border-top:1px solid var(--line);padding-top:16px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint);
+  line-height:1.7;
+}
+.hidden{display:none !important}
+
+@media (max-width:640px){
+  .board-head{display:none}
+  .brow{grid-template-columns:1fr auto;grid-template-areas:"what count" "when count"}
+  .brow .what{grid-area:what}
+  .brow .when{grid-area:when;margin-top:4px}
+  .brow .when small{display:inline;margin-left:6px}
+  .count{grid-area:count;align-self:center}
+  .stats{flex-wrap:wrap}
+  .stat{flex:1 1 45%;border-bottom:1px solid var(--line)}
+}
+@media (prefers-reduced-motion:no-preference){
+  .brow,.card,.gitem{animation:rise .25s ease both}
+  @keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="masthead">
+    <div>
+      <h1>Internship <span class="amp">///</span> Tracker</h1>
+      <div class="sub" id="todayLabel"></div>
+    </div>
+    <div class="sync">
+      <span class="dot" id="syncDot"></span>
+      <span id="syncLabel">loading…</span>
+      <button class="refresh" id="refreshBtn" type="button">↻ Refresh</button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="bydate" type="button">By date</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="ppt" type="button">PPT schedule</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="test" type="button">Test schedule</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="resume" type="button">Resume schedule</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="ea" type="button">EA applications</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="all" type="button">All companies</button>
+  </div>
+</header>
+
+<main>
+  <section id="view-bydate" role="tabpanel">
+    <div class="board">
+      <div class="board-head"><span>When</span><span>Company / Event</span><span style="text-align:right">Status</span></div>
+      <div id="boardRows"></div>
+    </div>
+  </section>
+
+  <section id="view-ppt" role="tabpanel" class="hidden">
+    <div id="pptSchedule"></div>
+  </section>
+
+  <section id="view-test" role="tabpanel" class="hidden">
+    <div id="testSchedule"></div>
+  </section>
+
+  <section id="view-resume" role="tabpanel" class="hidden">
+    <div id="resumeSchedule"></div>
+  </section>
+
+  <section id="view-ea" role="tabpanel" class="hidden">
+    <div id="eaSchedule"></div>
+  </section>
+
+  <section id="view-all" role="tabpanel" class="hidden">
+    <div class="controls">
+      <input class="search" id="searchBox" type="search" placeholder="Search company…" aria-label="Search company">
+      <button class="chipbtn" id="filterActive" aria-pressed="true" type="button">Active</button>
+      <button class="chipbtn" id="filterClosed" aria-pressed="false" type="button">Closed</button>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+</main>
+
+<footer>
+  <div id="dataSource"></div>
+  <div>Passwords column from the sheet is intentionally not shown here.</div>
+</footer>
+</div>
+
+<script>
+/* =====================================================================
+   CONFIG — LIVE SYNC WITH THE GOOGLE SHEET
+   1. In Google Sheets: File → Share → Publish to web
+   2. Choose ONLY the tracker tab (not the whole document), format = CSV
+   3. Copy the link and paste it between the quotes below.
+   Leave it empty ("") to use the built-in snapshot data instead.
+   ===================================================================== */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwRjUv_e_1PcG7xsGWWZXNgrX_ATqGHYOr80OD772HCqSBCxnWIIC9BtEjgh7devtlvAo0GI8wKM_P/pub?gid=0&single=true&output=csv";
+const AUTO_REFRESH_MINUTES = 5;
+
+/* ---------- snapshot data (used when SHEET_CSV_URL is empty or fetch fails) ---------- */
+const SNAPSHOT = [
+["BCG","-","No ppt","21st Jun EOD","Resume submitted","No EA","-","-","No test","","Closed"],
+["McKinsey","-","No ppt","21st Jun EOD","Resume submitted","EA applied","-","-","No test","","Closed"],
+["Bain","-","No ppt","21 June EOD","Resume submitted","EA applied","-","25th June","gave test","","Closed"],
+["Barclays mentorship","NO INFO","Attended PPT","18th Jun EOD","Resume submitted","EA applied","-","20th Jun","gave test","","Closed"],
+["Amazon MLSS","-","No ppt","14th Jun EOD","Resume submitted","EA applied","-","28th Jun","gave test","","Closed"],
+["JPMC seminar","Yes","Didnt attend","22nd Jun EOD","Resume submitted","EA applied","-","-","No test","","Closed"],
+["CISCO webinar","24th June 5PM","Didnt attend","-","-","-","-","-","No test","-","Closed"],
+["Squarepoint Capital","NO INFO","Didnt attend","26th June EOD","Resume submitted","EA applied","-","30 June 2PM - 5PM","gave test","","Closed"],
+["Nomura : GMA","2 July 5 to 6 PM","Attended PPT","","Resume submitted","EA applied","","","No test","","Waiting GD SL"],
+["Nomura: WS","2 July 5 to 6 PM","Attended PPT","","Resume submitted","EA applied","","","No test","","Waiting GD SL"],
+["Expedia hackathon","","No ppt","","No resume submission","EA applied","","","gave test","","Waiting GD SL"],
+["Trexquant","","No info yet","","Resume submitted","EA applied","","","Test yet to give","","Waiting test SL"],
+["Dynamic technology: Quant research","7th July 2pm","Didnt attend","","Resume submitted","No EA","","","Test yet to give","","Waiting test SL"],
+["Dynamic technology: SDE","7th July 2pm","Didnt attend","","Resume submitted","No EA","","","Test yet to give","","Waiting test SL"],
+["Cisco SWE","9th July","Yet to attend PPT","8th July","Resume submitted","No EA","","11th July 7 to 8.30","Test yet to give","","Waiting test SL"],
+["JPMC 2027 Data & AI Program – Academic Internship – India","8th July 4.30PM","Didnt attend","10th July","Resume submitted","EA have to apply","","","Test yet to give","","Waiting test SL"],
+["JPMC 2027 International Consumer Engineering Program - Summer Internship – Bengaluru, India","8th July 4.30PM","Didnt attend","10th July","Resume submitted","EA have to apply","","","Test yet to give","","Waiting test SL"],
+["JPMC 2027 - Summer Internship - QTR Markets","8th July 4.30PM","Didnt attend","10th July","Resume submitted","EA have to apply","","","Test yet to give","","Waiting test SL"],
+["JPMC 2027 CIB Research & Analytics, Markets – Trading and Structuring – Academic Intern","8th July 4.30PM","Didnt attend","10th July","Resume submitted","EA have to apply","","","Test yet to give","","Waiting test SL"],
+["JPMC 2027 CIB Research & Analytics, Global Research – Academic Intern","8th July 4.30PM","Didnt attend","10th July","Resume submitted","EA have to apply","","","Test yet to give","","Waiting test SL"],
+["JPMC 2026 CIB Research & Analytics, Markets – Trading and Structuring - Summer Intern","8th July 4.30PM","Didnt attend","10th July","Resume submitted","EA have to apply","","","Test yet to give","","Waiting test SL"],
+["DE Shaw","7th July 4pm","Didnt attend","","Resume not submitted","EA have to apply","","","Test yet to give","","Need to submit resume"],
+["Stripe","8th July 2pm","Yet to attend PPT","","Resume submitted","EA applied","","","Test yet to give","","Waiting test SL"],
+["Wipro","9th July 3 to 4PM","Yet to attend PPT","10th July","Resume submitted","No EA","","","Test yet to give","","Waiting test SL"],
+["Point72 2 months","12th July 5-6PM","Yet to attend PPT","July 11th","Resume submitted","EA applied","","16th July 11am to 12.30pm","Test yet to give","","Waiting test SL"],
+["Point72 6 months","12th July 5-6PM","Yet to attend PPT","July 11th","Resume submitted","EA applied","","16th July 11am to 12.30pm","Test yet to give","","Waiting test SL"],
+["Nestle","","No info yet","17th July","Resume submitted","No EA","","","Test yet to give","","Waiting test SL"],
+["Uber Data Scientist","10th July 7pm to 8pm","Yet to attend PPT","July 12th EOD","Resume submitted","No EA","","","Test yet to give","","Waiting test SL"],
+["Accenture M&C","","No info yet","9th July","Resume submitted","EA applied","","","Test yet to give","","Need to submit resume"],
+["Procter and Gamble","","Yet to attend PPT","July 10th","Resume submitted","EA have to apply","","","Test yet to give","","Need to submit resume"],
+["Hindustan Unilever","13th July 4.15PM","Yet to attend PPT","","Resume not submitted","EA have to apply","","","Test yet to give","","Need to submit resume"]
+];
+const FIELDS = ["company","pptDate","pptStatus","resumeDeadline","resumeStatus","ea","gd","testDeadline","testStatus","interview","action"];
+
+/* ---------- CSV parsing (handles quoted fields) ---------- */
+function parseCSV(text){
+  const rows=[]; let row=[], cur="", inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(inQ){
+      if(ch==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else inQ=false; }
+      else cur+=ch;
+    }else{
+      if(ch==='"') inQ=true;
+      else if(ch===','){row.push(cur);cur="";}
+      else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur="";}
+      else if(ch!=='\r') cur+=ch;
+    }
+  }
+  if(cur.length||row.length){row.push(cur);rows.push(row);}
+  return rows;
+}
+
+/* map sheet headers → our field names, tolerant of order changes */
+function mapHeaders(headerRow){
+  const map={};
+  headerRow.forEach((h,i)=>{
+    const n=(h||"").toLowerCase().trim();
+    if(!n) return;
+    if(n.includes("company")) map.company=i;
+    else if(n.includes("ppt")&&n.includes("date")) map.pptDate=i;
+    else if(n.includes("ppt")&&n.includes("status")) map.pptStatus=i;
+    else if(n.includes("resume")&&n.includes("dead")) map.resumeDeadline=i;
+    else if(n.includes("resume")&&n.includes("status")) map.resumeStatus=i;
+    else if(n.startsWith("ea")) map.ea=i;
+    else if(n.startsWith("gd")) map.gd=i;
+    else if(n.includes("test")&&n.includes("dead")) map.testDeadline=i;
+    else if(n.includes("test")&&n.includes("status")) map.testStatus=i;
+    else if(n.includes("interview")) map.interview=i;
+    else if(n.includes("action")) map.action=i;
+    /* "password" columns are deliberately ignored */
+  });
+  return map;
+}
+
+function rowsToCompanies(rows){
+  if(!rows.length) return [];
+  const map=mapHeaders(rows[0]);
+  const out=[];
+  for(let r=1;r<rows.length;r++){
+    const raw=rows[r];
+    const get=f=>{const i=map[f];return (i===undefined||raw[i]===undefined)?"":String(raw[i]).trim();};
+    const c={};
+    FIELDS.forEach(f=>c[f]=get(f));
+    if(c.company) out.push(c);
+  }
+  return out;
+}
+
+function snapshotCompanies(){
+  return SNAPSHOT.map(arr=>{
+    const c={};FIELDS.forEach((f,i)=>c[f]=arr[i]||"");return c;
+  });
+}
+
+/* ---------- date parsing: "21st Jun EOD", "July 11th", "8th July 4.30PM", "2 July 5 to 6 PM" ---------- */
+const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+function parseWhen(str){
+  if(!str) return null;
+  const s=str.toLowerCase();
+  let day=null,mon=null;
+  let m=s.match(/(\d{1,2})\s*(?:st|nd|rd|th)?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*/);
+  if(m){day=+m[1];mon=MONTHS[m[2]];}
+  else{
+    m=s.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s*(\d{1,2})/);
+    if(m){mon=MONTHS[m[1]];day=+m[2];}
+  }
+  if(day===null||mon===null||day<1||day>31) return null;
+  const now=new Date();
+  let year=now.getFullYear();
+  /* start time if present, else assume end of day for deadlines */
+  let hh=23,mm=59;
+  const t=s.match(/(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)/);
+  if(t){
+    hh=+t[1];mm=t[2]?+t[2]:0;
+    if(t[3]==="pm"&&hh<12)hh+=12;
+    if(t[3]==="am"&&hh===12)hh=0;
+  }
+  const d=new Date(year,mon,day,hh,mm);
+  return d;
+}
+function dayDiff(d){
+  const now=new Date();
+  const a=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const b=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  return Math.round((b-a)/86400000);
+}
+function fmtDate(d){
+  return d.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short"});
+}
+
+/* ---------- status colour classification ---------- */
+function pillClass(v){
+  const s=(v||"").toLowerCase();
+  if(!s||s==="-") return "n";
+  if(/submitted|gave test|attended|^ea applied|^yes/.test(s)) return "g";
+  if(/didnt|not submitted|no resume submission|need to submit/.test(s)) return "r";
+  if(/yet to|have to|waiting|no info/.test(s)) return "a";
+  return "n";
+}
+function actionClass(a){
+  const s=(a||"").toLowerCase();
+  if(s.includes("need")) return "red";
+  if(s.includes("waiting")) return "cyan";
+  if(s.includes("closed")) return "grey";
+  return "amber";
+}
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+/* ---------- "already done, don't prompt again" checks ---------- */
+function isPptDone(c){ return /attended/i.test(c.pptStatus) && !/didnt|yet to/i.test(c.pptStatus); }
+function isResumeDone(c){ return /submitted/i.test(c.resumeStatus) && !/not submitted|no resume submission/i.test(c.resumeStatus); }
+function isTestDone(c){ return /gave test/i.test(c.testStatus); }
+function isGdDone(c){ return /attended|done|cleared/i.test(c.gd||""); }
+function isClosed(c){ return /closed/i.test(c.action||""); }
+
+/* ---------- build event list (for the By Date board — pending items only) ---------- */
+function buildEvents(companies){
+  const evs=[];
+  for(const c of companies){
+    if(isClosed(c)) continue;
+    if(!isPptDone(c) && /yet to/i.test(c.pptStatus)){
+      const d=parseWhen(c.pptDate);
+      if(d) evs.push({c,type:"PPT",raw:c.pptDate,date:d});
+    }
+    if(!isResumeDone(c)){
+      const d=parseWhen(c.resumeDeadline);
+      if(d) evs.push({c,type:"RESUME DUE",raw:c.resumeDeadline,date:d});
+    }
+    if(!isTestDone(c) && /yet to give/i.test(c.testStatus)){
+      const d=parseWhen(c.testDeadline);
+      if(d) evs.push({c,type:"TEST",raw:c.testDeadline,date:d});
+    }
+  }
+  evs.sort((a,b)=>a.date-b.date);
+  return evs;
+}
+
+/* ---------- rendering ---------- */
+let STATE={companies:[],events:[],live:false,search:"",showActive:true,showClosed:false};
+
+function render(){
+  renderStats();renderBoard();
+  renderSchedule("pptSchedule",PPT_CFG);
+  renderSchedule("testSchedule",TEST_CFG);
+  renderSchedule("resumeSchedule",RESUME_CFG);
+  renderSchedule("eaSchedule",EA_CFG);
+  renderCards();
+}
+
+function renderStats(){
+  const cs=STATE.companies;
+  const active=cs.filter(c=>!(c.action||"").toLowerCase().includes("closed"));
+  const todayEvs=STATE.events.filter(e=>dayDiff(e.date)===0).length;
+  const overdue=STATE.events.filter(e=>dayDiff(e.date)<0).length;
+  const todo=active.filter(c=>(c.action||"").toLowerCase().includes("need")).length;
+  document.getElementById("stats").innerHTML=`
+    <div class="stat act"><b>${active.length}</b><span>Active</span></div>
+    <div class="stat today"><b>${todayEvs}</b><span>Due today</span></div>
+    <div class="stat todo"><b>${todo}</b><span>Resumes to submit</span></div>
+    <div class="stat"><b>${cs.length-active.length}</b><span>Closed</span></div>`;
+}
+
+function countdown(e){
+  const dd=dayDiff(e.date);
+  if(dd<0) return `<span class="count overdue">${-dd}d ago</span>`;
+  if(dd===0) return `<span class="count today">Today</span>`;
+  if(dd===1) return `<span class="count soon">Tomorrow</span>`;
+  if(dd<=3) return `<span class="count soon">In ${dd} days</span>`;
+  return `<span class="count later">In ${dd} days</span>`;
+}
+
+function renderBoard(){
+  const el=document.getElementById("boardRows");
+  const upcoming=STATE.events.filter(e=>dayDiff(e.date)>=0);
+  const past=STATE.events.filter(e=>dayDiff(e.date)<0 && dayDiff(e.date)>=-7).reverse(); /* last 7 days, most recent first */
+  const row=e=>`
+    <div class="brow">
+      <div class="when">${fmtDate(e.date)}<small>${esc(e.raw)}</small></div>
+      <div class="what">
+        <div class="co">${esc(e.c.company)}</div>
+        <div class="ev"><span class="evtag">${e.type}</span></div>
+      </div>
+      ${countdown(e)}
+    </div>`;
+  let html="";
+  if(!upcoming.length){
+    html+=`<div class="empty">Nothing coming up — you're all caught up.</div>`;
+  }else{
+    html+=upcoming.map(row).join("");
+  }
+  if(past.length){
+    html+=`<div class="board-divider">Recently passed</div>`;
+    html+=past.map(row).join("");
+  }
+  el.innerHTML=html;
+}
+
+/* ---------- generic schedule renderer (PPT / Test / Resume) ----------
+   Pending items are sorted chronologically with a countdown.
+   Done items are listed underneath as a settled fact — status shown, no prompt. */
+function renderSchedule(containerId, cfg){
+  const cs=STATE.companies.filter(c=>!isClosed(c));
+  const pending=[], missed=[], done=[], noDate=[];
+  for(const c of cs){
+    if(cfg.isDone(c)){ done.push(c); continue; }
+    if(cfg.isMissed && cfg.isMissed(c)){ missed.push(c); continue; }
+    if(!cfg.isPending(c)) continue;
+    if(cfg.noDates){ noDate.push(c); continue; }
+    const d=parseWhen(c[cfg.dateField]);
+    if(d) pending.push({c,date:d}); else noDate.push(c);
+  }
+  pending.sort((a,b)=>a.date-b.date);
+
+  let html="";
+  html+=`<div class="sched-head">Pending<span class="n">${pending.length+noDate.length}</span></div>`;
+  if(!pending.length && !noDate.length){
+    html+=`<div class="empty">Nothing pending — you're all caught up.</div>`;
+  }else{
+    html+=pending.map(({c,date})=>`
+      <div class="srow">
+        <div><div class="co">${esc(c.company)}</div><div class="meta">${esc(c[cfg.dateField])} · ${fmtDate(date)}</div></div>
+        ${countdown({date})}
+      </div>`).join("");
+    html+=noDate.map(c=>`
+      <div class="srow">
+        <div><div class="co">${esc(c.company)}</div>${cfg.noDates?"":`<div class="meta">${esc(c[cfg.statusField]||"date not listed yet")}</div>`}</div>
+        <span class="count later">${cfg.noDates?"To apply":"No date yet"}</span>
+      </div>`).join("");
+  }
+  if(missed.length){
+    html+=`<div class="sched-head">Missed<span class="n">${missed.length}</span></div>`;
+    html+=missed.map(c=>`
+      <div class="srow done">
+        <div><div class="co">${esc(c.company)}</div><div class="meta">${esc(c[cfg.statusField])}</div></div>
+        <span class="count overdue">Missed</span>
+      </div>`).join("");
+  }
+  if(done.length){
+    html+=`<div class="sched-head">${cfg.doneLabel}<span class="n">${done.length}</span></div>`;
+    html+=done.map(c=>`
+      <div class="srow done">
+        <div><div class="co">${esc(c.company)}</div><div class="meta">${esc(c[cfg.statusField])}</div></div>
+        <span class="check">✓ ${cfg.doneLabel}</span>
+      </div>`).join("");
+  }
+  document.getElementById(containerId).innerHTML=html;
+}
+
+const PPT_CFG={dateField:"pptDate",statusField:"pptStatus",isDone:isPptDone,isMissed:c=>/didnt attend/i.test(c.pptStatus||""),isPending:c=>/yet to attend/i.test(c.pptStatus||""),doneLabel:"Attended"};
+const TEST_CFG={dateField:"testDeadline",statusField:"testStatus",isDone:isTestDone,isPending:c=>/yet to give/i.test(c.testStatus),doneLabel:"Test given"};
+const RESUME_CFG={dateField:"resumeDeadline",statusField:"resumeStatus",isDone:isResumeDone,isPending:c=>!isResumeDone(c),doneLabel:"Submitted"};
+const EA_CFG={statusField:"ea",noDates:true,isDone:c=>/applied/i.test(c.ea||""),isPending:c=>/have to apply/i.test(c.ea||""),doneLabel:"Applied"};
+
+function renderCards(){
+  const q=STATE.search.toLowerCase();
+  const list=STATE.companies.filter(c=>{
+    const closed=(c.action||"").toLowerCase().includes("closed");
+    if(closed&&!STATE.showClosed) return false;
+    if(!closed&&!STATE.showActive) return false;
+    return c.company.toLowerCase().includes(q);
+  });
+  const field=(k,v,pill)=>v&&v!=="-"?`<div class="frow"><span class="k">${k}</span><span class="v">${pill?`<span class="pill ${pillClass(v)}">${esc(v)}</span>`:`<span class="date-note">${esc(v)}</span>`}</span></div>`:"";
+  document.getElementById("cards").innerHTML=list.map(c=>{
+    const closed=(c.action||"").toLowerCase().includes("closed");
+    return `<div class="card${closed?" closed":""}">
+      <h3>${esc(c.company)}</h3>
+      <div class="action ${actionClass(c.action)}">▸ ${esc(c.action||"—")}</div>
+      ${field("PPT date",c.pptDate)}
+      ${field("PPT",c.pptStatus,true)}
+      ${field("Resume deadline",c.resumeDeadline)}
+      ${field("Resume",c.resumeStatus,true)}
+      ${field("EA",c.ea,true)}
+      ${field("GD",c.gd,true)}
+      ${field("Test deadline",c.testDeadline)}
+      ${field("Test",c.testStatus,true)}
+      ${field("Interview",c.interview,true)}
+    </div>`;
+  }).join("")||`<div class="empty">No companies match.</div>`;
+}
+
+/* ---------- data loading ---------- */
+async function load(manual){
+  const dot=document.getElementById("syncDot"),label=document.getElementById("syncLabel");
+  const src=document.getElementById("dataSource");
+  if(SHEET_CSV_URL){
+    try{
+      label.textContent="syncing…";
+      const res=await fetch(SHEET_CSV_URL+(SHEET_CSV_URL.includes("?")?"&":"?")+"cb="+Date.now(),{cache:"no-store"});
+      if(!res.ok) throw new Error(res.status);
+      const text=await res.text();
+      STATE.companies=rowsToCompanies(parseCSV(text));
+      STATE.live=true;
+      dot.className="dot live";
+      label.textContent="live · updated "+new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+      src.textContent="Data: synced live from the Google Sheet. Edits in the sheet appear here on refresh (auto every "+AUTO_REFRESH_MINUTES+" min).";
+    }catch(err){
+      STATE.companies=snapshotCompanies();
+      dot.className="dot snapshot";
+      label.textContent="sheet unreachable · showing snapshot";
+      src.textContent="Data: could not reach the published sheet, showing the built-in snapshot instead.";
+    }
+  }else{
+    STATE.companies=snapshotCompanies();
+    dot.className="dot snapshot";
+    label.textContent="snapshot data";
+    src.textContent="Data: built-in snapshot. To make edits in the Google Sheet appear automatically, publish the sheet tab as CSV and paste the link into SHEET_CSV_URL at the top of this file's script.";
+  }
+  STATE.events=buildEvents(STATE.companies);
+  render();
+}
+
+/* ---------- wiring ---------- */
+document.getElementById("todayLabel").textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+document.getElementById("refreshBtn").addEventListener("click",()=>load(true));
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t));
+  ["bydate","ppt","test","resume","ea","all"].forEach(v=>document.getElementById("view-"+v).classList.toggle("hidden",t.dataset.tab!==v));
+}));
+document.getElementById("searchBox").addEventListener("input",e=>{STATE.search=e.target.value;renderCards();});
+document.getElementById("filterActive").addEventListener("click",e=>{STATE.showActive=!STATE.showActive;e.target.setAttribute("aria-pressed",STATE.showActive);renderCards();});
+document.getElementById("filterClosed").addEventListener("click",e=>{STATE.showClosed=!STATE.showClosed;e.target.setAttribute("aria-pressed",STATE.showClosed);renderCards();});
+
+load();
+setInterval(load,AUTO_REFRESH_MINUTES*60*1000);
+</script>
+</body>
+</html>
